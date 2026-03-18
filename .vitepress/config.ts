@@ -4,6 +4,7 @@ export default defineConfig({
     srcDir: './content',
     title: 'Seer Docs',
     description: 'Documentation for Seer — Solana program debugger',
+    head: [['link', { rel: 'icon', href: '/icon.png' }]],
     themeConfig: {
         nav: [
             { text: 'Home', link: '/' },
