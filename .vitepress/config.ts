@@ -9,11 +9,13 @@ export default defineConfig({
         nav: [
             { text: 'Home', link: '/' },
             { text: 'In a Nutshell', link: '/in_a_nutshell/' },
+            { text: 'Getting started', link: '/get_started/'},
         ],
         sidebar: [
             {
                 items: [
                     { text: 'In a Nutshell', link: '/in_a_nutshell/' },
+                    { text: 'Getting started', link: '/get_started/'},
                 ],
             },
         ],
