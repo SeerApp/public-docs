@@ -16,6 +16,18 @@ export default defineConfig({
                 items: [
                     { text: 'In a Nutshell', link: '/in_a_nutshell/' },
                     { text: 'Getting started', link: '/get_started/'},
+                    {
+                        text: 'CLI Documentation',
+                        link: '/cli_documentation/',
+                        collapsed: true,
+                        items: [
+                            { text: 'Installation', link: '/cli_documentation/installation' },
+                            { text: 'Authentication', link: '/cli_documentation/authentication' },
+                            { text: 'Commands Reference', link: '/cli_documentation/commands' },
+                            { text: 'Sessions', link: '/cli_documentation/sessions' },
+                            { text: 'Tracing Transactions', link: '/cli_documentation/tracing' },
+                        ],
+                    },
                 ],
             },
         ],
