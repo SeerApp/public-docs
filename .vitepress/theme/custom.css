@@ -1,0 +1,13 @@
+/* Smooth collapse animation for sidebar collapsible sections */
+.VPSidebarItem .items {
+    display: block !important;
+    overflow: hidden;
+    max-height: 500px;
+    opacity: 1;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+}
+
+.VPSidebarItem.collapsed .items {
+    max-height: 0 !important;
+    opacity: 0;
+}
