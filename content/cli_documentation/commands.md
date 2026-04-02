@@ -47,13 +47,14 @@ seer build [OPTIONS]
   <tbody>
     <tr><td style="white-space:nowrap"><code>--silent</code></td><td><code>false</code></td><td>Suppress build output. Only errors and the summary are shown.</td></tr>
     <tr><td style="white-space:nowrap"><code>--force</code></td><td><code>false</code></td><td>Proceed with the build even when the Solana CLI version is below v3. The resulting artifacts are not guaranteed to work with Seer.</td></tr>
+    <tr><td style="white-space:nowrap"><code>--no-idl</code></td><td><code>false</code></td><td>Skip building IDL files for Anchor programs.</td></tr>
   </tbody>
 </table>
 
 **What it does:**
 
 1. Detects all Solana programs.
-2. Build each detected program for Seer.
+2. Compiles each program. For Anchor programs, builds IDL after the program compiles successfully.
 3. Prints a build summary showing which programs succeeded and which failed.
 
 **When to use it:**
@@ -69,6 +70,9 @@ seer build
 
 # Build silently
 seer build --silent
+
+# Build without generating Anchor IDL files
+seer build --no-idl
 ```
 
 ## `seer run`
@@ -92,17 +96,20 @@ seer run [OPTIONS]
     <tr><td style="white-space:nowrap"><code>--artifacts &lt;PATH&gt;</code></td><td><code>./target/deploy</code></td><td>Path to the directory containing built program artifacts (<code>.so</code>, <code>.debug</code>, <code>-keypair.json</code>). Override this if your project uses a non-standard output directory.</td></tr>
     <tr><td style="white-space:nowrap"><code>--api-key &lt;API_KEY&gt;</code></td><td><em>none</em></td><td>API key to use for this run, overriding the stored key and <code>SEER_API_KEY</code> environment variable.</td></tr>
     <tr><td style="white-space:nowrap"><code>--force</code></td><td><code>false</code></td><td>Force build even if Solana CLI version is below v3.</td></tr>
+    <tr><td style="white-space:nowrap"><code>--idl-file &lt;PATH&gt;</code></td><td><em>none</em></td><td>Path to an IDL file to include in the session. Can be specified multiple times. Idl file name must corresponds program name. When any  &nbsp;<code>--idl-file</code> is provided, automatic IDL discovery is skipped entirely.</td></tr>
+    <tr><td style="white-space:nowrap"><code>--no-idl</code></td><td><code>false</code></td><td>Skip IDL build, discovery, validation, and upload entirely.</td></tr>
   </tbody>
 </table>
 
 **What it does:**
 
-1. Runs `seer build` (unless `--skip-build` is set).
+1. Runs `seer build` (unless `--skip-build` is set). For Anchor programs this includes building IDL files (unless `--no-idl` is set).
 2. Locates compiled artifacts in the artifacts directory.
-3. Lists all files to be uploaded and asks for consent (unless `--consent` is set).
-4. Uploads the artifacts to Seer.
-5. Starts a remote validator session.
-6. Prints the session RPC URL.
+3. Discovers IDL files from `target/idl/` and `target/types/` by matching program names, unless `--idl-file` paths are provided or `--no-idl` is set.
+4. Lists all files to be uploaded and asks for consent (unless `--consent` is set).
+5. Uploads the artifacts (programs, debug info, source files, and IDL files) to Seer.
+6. Starts a remote validator session.
+7. Prints the session RPC URL.
 
 **Output:**
 
@@ -134,6 +141,12 @@ seer run --artifacts ./my-custom-build/deploy
 
 # Override API key for this run only
 seer run --api-key sk_live_...
+
+# Include multiple IDL files
+seer run --idl-file ./target/idl/program_a.json --idl-file ./target/idl/program_b.json
+
+# Skip IDL 
+seer run --no-idl
 ```
 
 ## `seer install`

@@ -1,6 +1,6 @@
 # Tracing Transactions
 
-Once your Seer session is running, you need to point your Solana tooling at the session RPC URL so that transactions are routed through the Seer validator and recorded.
+Once your Seer session is running, send transactions to it through your test suite. Your programs are automatically deployed to the session under their public keys (derived from the keypair files).
 
 ## The Session URL
 
@@ -10,30 +10,14 @@ After running `seer run`, the CLI prints a URL in the following format:
 New Seer session at: https://rpc.seer.run/<session-id>
 ```
 
-Use this URL as the RPC endpoint in your deployment and test commands. Anything you would normally point at `http://localhost:8899` (the default local test validator URL) should be pointed at the Seer session URL instead.
+This URL is derived from your API key and will remain stable across session restarts and timeouts, as long as you don't [regenerate your API key](authentication.md#regenerating-your-key).
 
-## Deploying Programs
+Use this URL as the RPC endpoint in your test commands. Anything you would normally point at `http://localhost:8899` (the default local test validator URL) should be pointed at the Seer session URL instead.
+## Automatic Program Deployment
 
-You must deploy your programs to the Seer session before sending transactions. The programs must be the same ones built by `seer build` or `seer run` — do not deploy binaries built outside of Seer, as the session will not have the matching debug context.
+When you run `seer run`, Seer automatically deploys all your compiled programs to the session. Each program is deployed under the public key derived from its keypair file from `/<program-name>-keypair.json`.
 
-**Using the Solana CLI:**
-
-```sh
-solana --url https://rpc.seer.run/<session-id> program deploy target/deploy/your_program.so
-```
-
-**Using Anchor:**
-
-```sh
-anchor deploy --provider.cluster https://rpc.seer.run/<session-id>
-```
-
-Or set the cluster in `Anchor.toml`:
-
-```toml
-[provider]
-cluster = "https://rpc.seer.run/<session-id>"
-```
+**You do not need to manually deploy programs.** Simply run your tests against the session URL and Seer handles the deployment for you.
 
 ## Running Tests
 
@@ -66,9 +50,9 @@ import { Connection } from "@solana/web3.js";
 const connection = new Connection("https://rpc.seer.run/<session-id>", "confirmed");
 ```
 
-## Finding Program IDs After Build
+## Finding Program IDs
 
-When `seer build` or `seer run` compiles your programs, each program gets a keypair file saved at `target/deploy/<program-name>-keypair.json`. The program ID is the public key of that keypair.
+When `seer build` or `seer run` compiles your programs, each program gets a keypair file saved at `target/deploy/<program-name>-keypair.json`. The program ID is the public key of that keypair, and this is the public key under which your program is deployed in the Seer session.
 
 You can always retrieve a program ID without deploying:
 
@@ -76,7 +60,7 @@ You can always retrieve a program ID without deploying:
 solana-keygen pubkey ./target/deploy/<program-name>-keypair.json
 ```
 
-Note that the program ID is stable across builds as long as the keypair file is not deleted. If you delete the keypair file, a new one will be generated on the next build and the program ID will change.
+The program ID is stable across builds as long as the keypair file is not deleted. If you delete the keypair file, a new one will be generated on the next build and the program ID will change.
 
 ## Viewing Traces in the Dashboard
 
@@ -103,14 +87,13 @@ seer run
 # Output:
 # New Seer session at: https://rpc.seer.run/3AXR11hQSS7nNf9C3DnwkSqzWRT
 
-# 3. Deploy your programs to the session
-solana --url https://rpc.seer.run/3AXR11hQSS7nNf9C3DnwkSqzWRT \
-  program deploy target/deploy/my_program.so
-
-# 4. Run your tests against the session
+# 3. Run your tests 
 RPC_URL=https://rpc.seer.run/3AXR11hQSS7nNf9C3DnwkSqzWRT cargo test
 
-# 5. Open the dashboard to inspect traces
+# OR for Anchor:
+anchor test --provider.cluster https://rpc.seer.run/3AXR11hQSS7nNf9C3DnwkSqzWRT
+
+# 4. Open the dashboard to inspect traces
 # https://app.seer.run/dashboard
 ```
 
@@ -118,14 +101,13 @@ RPC_URL=https://rpc.seer.run/3AXR11hQSS7nNf9C3DnwkSqzWRT cargo test
 
 When you make changes to your programs and want to re-trace:
 
-1. Run `seer run` again — this rebuilds changed programs and restarts the session.
-2. Redeploy your programs to the session URL.
-3. Rerun your tests.
+1. Run `seer run` again — this rebuilds changed programs, restarts the session, and redeploys programs automatically.
+2. Rerun your tests.
 
-If only your test code changed (no program changes), you can skip the build and redeploy step:
+If only your test code changed (no program changes), you can skip the build step:
 
 ```sh
 seer run --skip-build
 ```
 
-Then rerun tests as usual.
+Then rerun tests as usual. Your programs remain deployed with their stable public keys.

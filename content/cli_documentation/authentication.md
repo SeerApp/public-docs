@@ -68,3 +68,20 @@ The CLI resolves the API key using the following priority order (first match win
 3. Key stored in the config file via `seer login`
 
 If no key is found through any of these methods, the command will fail with an error asking you to log in.
+
+## API Key Management
+
+### One Key Per Account
+
+Each Seer account has **one active API key** at a time. You can regenerate this key from your account settings at [app.seer.run](https://app.seer.run).
+
+### Regenerating Your Key
+
+You can regenerate your API key once every **24 hours**. When you regenerate your key:
+- The new key becomes active immediately
+- The old key stops working
+- Your **RPC URL changes** (since it is derived from your API key)
+
+**Important:** If you have scripts or tests hardcoded with your old RPC URL, they will stop working after regeneration. Update them to use the new URL from the next `seer run` output.
+
+If you need to regenerate your key frequently (more than once per 24 hours), contact support.

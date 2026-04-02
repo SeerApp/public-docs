@@ -4,12 +4,13 @@ A Seer session is a remote Solana validator instance that records full transacti
 
 ## What a Session Is
 
-When you run `seer run`, Seer starts a remote validator on its infrastructure. This validator works the same as a local `solana-test-validator`, but with two key differences:
+When you run `seer run`, Seer starts a remote validator on its infrastructure and deploys all your compiled programs to it. This validator works the same as a local `solana-test-validator`, but with three key differences:
 
 - It has access to **mainnet state** — you can test against real on-chain accounts without syncing a full node.
 - Every transaction processed by the validator is **recorded with a full call stack** and linked back to your source code, visible in the [Seer Dashboard](https://app.seer.run/dashboard).
+- Your programs are **automatically deployed** under their public keys derived from the keypair files.
 
-You interact with the session exactly like any other Solana RPC endpoint: deploy programs to it, send transactions, run tests — everything works the same way.
+You interact with the session exactly like any other Solana RPC endpoint: send transactions and run tests — everything works the same way.
 
 ## Starting a Session
 
@@ -27,6 +28,11 @@ New Seer session at: https://rpc.seer.run/3AXR11hQSS7nNf9C3DnwkSqzWRT
 
 This URL is your session endpoint. All deployments and transactions must be directed here.
 
+At this point:
+- Your session is running
+- All your programs are automatically deployed under their public keys
+- You can now send transactions to this RPC endpoint through your tests
+
 ## Session Timeout
 
 Sessions automatically shut down after **30 minutes of inactivity** (no transactions received).
@@ -40,6 +46,8 @@ seer run --skip-build
 ## Consistent RPC URL
 
 The RPC URL is derived from your API key, not the session state. This means **the URL stays the same** across sessions as long as you use the same API key. You can safely hardcode the URL in your test scripts and it will continue to work after timeouts and restarts.
+
+**Note:** If you [regenerate your API key](authentication.md#regenerating-your-key), your RPC URL will change. Update any hardcoded URLs in your test scripts.
 
 ## File Upload and Consent
 
@@ -76,10 +84,11 @@ The CLI uploads the following files per program:
     <tr><th style="white-space:nowrap">File</th><th>Purpose</th></tr>
   </thead>
   <tbody>
-    <tr><td style="white-space:nowrap"><code>.so</code></td><td>The compiled Solana program binary. Executed by the validator.</td></tr>
+    <tr><td style="white-space:nowrap"><code>.so</code></td><td>The compiled Solana program binary. Automatically deployed to the session under the public key from the corresponding keypair file.</td></tr>
     <tr><td style="white-space:nowrap"><code>.debug</code></td><td>DWARF debug symbols. Used to map execution addresses to source lines.</td></tr>
-    <tr><td style="white-space:nowrap"><code>-pubkey.json</code></td><td>The program's public key (derived from the keypair). Used to identify the program in the session. <strong>The secret key is never uploaded.</strong></td></tr>
+    <tr><td style="white-space:nowrap"><code>-pubkey.json</code></td><td>The program's public key (derived from the keypair). Used to identify the program in the session. And deploy yor programs on RPC under it. <strong>The secret key is never uploaded.</strong></td></tr>
     <tr><td style="white-space:nowrap"><code>.rs</code></td><td>Rust source files. Enables source-level traces in the dashboard.</td></tr>
+    <tr><td style="white-space:nowrap"><code>.json</code>&nbsp;(IDL)</td><td><strong>Optional.</strong> Interface Definition Language file for Anchor or Codama programs. When included, provides much richer tracing context.</td></tr>
   </tbody>
 </table>
 

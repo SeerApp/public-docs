@@ -88,22 +88,9 @@ This URL is your session endpoint — a live Solana validator running on Seer's 
 
 
 
-## Step 4 — Deploy Your Programs
+## Step 4 — Run Your Tests
 
-For **native Solana** projects, deploy your compiled programs to the session URL using the Solana CLI:
-
-```sh
-solana --url https://rpc.seer.run/<session-id> \
-  program deploy target/deploy/my_program.so
-```
-
-For **Anchor** projects, no manual deploy step is needed — `anchor test` deploys your programs automatically before running tests. Skip ahead to [Step 5](#step-5-send-transactions).
-
-> The program ID is derived from the keypair file at `target/deploy/<program-name>-keypair.json`. It stays the same across builds as long as you do not delete that file.
-
-
-
-## Step 5 — Send Transactions
+Your programs are automatically deployed to the session under their public keys (derived from `<program-name>-keypair.json` files). You can now run your tests against the session URL.
 
 Run your tests or send transactions to the session URL exactly as you would against a local validator.
 
@@ -148,7 +135,7 @@ const connection = new Connection("https://rpc.seer.run/<session-id>", "confirme
 
 
 
-## Step 6 — Inspect Traces
+## Step 5 — Inspect Traces
 
 1. Open the [Seer Dashboard](https://app.seer.run/dashboard).
 2. Find your active session.
@@ -171,7 +158,7 @@ seer login
 # 3. From your project root — build, upload, and start a session
 seer run
 
-# 4. Run tests — Anchor deploys programs automatically
+# 4. Run your tests 
 anchor test --provider.cluster https://rpc.seer.run/<session-id>
 
 # 5. Open the dashboard to inspect traces
@@ -183,10 +170,10 @@ anchor test --provider.cluster https://rpc.seer.run/<session-id>
 ## Session Management
 
 | Topic | Detail |
-|||
+|---|---|
 | **Timeout** | Sessions automatically shut down after 30 minutes of inactivity. |
 | **Restart** | Run `seer run` again to restart. If your code has not changed, use `seer run --skip-build` to skip compilation. |
-| **Stable URL** | The RPC URL is derived from your API key, not the session state. It stays the same across restarts — safe to hardcode in test scripts. |
+| **Stable URL** | The RPC URL is derived from your API key and remains stable across session timeouts and restarts. Safe to hardcode in test scripts — unless you regenerate your API key. See [API Key Management](../cli_documentation/authentication.md#api-key-management) for more details. |
 
 
 
@@ -199,13 +186,13 @@ When you change a program and want fresh traces:
 # 1. Rebuild and restart the session
 seer run
 
-# 2. Rerun your tests — Anchor redeploys programs automatically
+# 2. Rerun your tests 
 anchor test --provider.cluster https://rpc.seer.run/<session-id>
 ```
 
 If you only changed your test code (no changes to your program code):
 
-- **If your Seer RPC session is still running:** You do not need to redeploy or rebuild anything. Just rerun your tests:
+- **If your Seer RPC session is still running:** You do not need to rebuild anything. Just rerun your tests:
   ```sh
   anchor test --provider.cluster https://rpc.seer.run/<session-id>
   ```
